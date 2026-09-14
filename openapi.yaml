@@ -1,0 +1,783 @@
+openapi: 3.0.3
+info:
+  title: Morphora
+  version: 0.1.0
+  description: >-
+    Dual-speed CIO operating system for FS shapeshifter roles: sensing, footprint, ecosystem, challenger portfolio.
+  x-product-slug: ai-fin-morphora
+  x-source: ai-in-financial/deloitte-gx-shapeshifters-changing-of-CIO-financial-services/
+servers:
+  - url: https://api.example.com
+tags:
+  - name: Sensing
+    description: Emerging tech sensing and hype filter
+  - name: Footprint
+    description: Dual-speed core footprint
+  - name: Partners
+    description: Ecosystem partner graph
+  - name: Initiatives
+    description: Challenger innovation portfolio
+  - name: Decisions
+    description: Immutable CIO decision ledger
+  - name: Talent
+    description: Critical role coverage
+  - name: Packs
+    description: Executive and board packs
+  - name: Cases
+    description: Shadow IT remediation
+paths:
+  /v1/sensing/signals:
+    get:
+      operationId: listSensingSignals
+      tags: [Sensing]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeSensingSignal"
+    post:
+      operationId: createSensingSignal
+      tags: [Sensing]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SensingSignalCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeSensingSignal"
+  /v1/sensing/signals/{signalId}/hype-assessment:
+    parameters:
+      - $ref: "#/components/parameters/SignalId"
+    put:
+      operationId: upsertHypeAssessment
+      tags: [Sensing]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HypeAssessmentUpsert"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeHypeAssessment"
+  /v1/footprint/systems:
+    get:
+      operationId: listCoreSystems
+      tags: [Footprint]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeCoreSystem"
+    post:
+      operationId: registerCoreSystem
+      tags: [Footprint]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoreSystemCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeCoreSystem"
+  /v1/footprint/systems/{systemId}/disposition:
+    parameters:
+      - $ref: "#/components/parameters/SystemId"
+    put:
+      operationId: setDisposition
+      tags: [Footprint]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DispositionUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeCoreSystem"
+  /v1/partners:
+    get:
+      operationId: listPartners
+      tags: [Partners]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopePartner"
+    post:
+      operationId: createPartner
+      tags: [Partners]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopePartner"
+  /v1/partners/{partnerId}/criticality:
+    parameters:
+      - $ref: "#/components/parameters/PartnerId"
+    put:
+      operationId: setPartnerCriticality
+      tags: [Partners]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CriticalityUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopePartner"
+  /v1/initiatives:
+    get:
+      operationId: listChallengerInitiatives
+      tags: [Initiatives]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeChallengerInitiative"
+    post:
+      operationId: createChallengerInitiative
+      tags: [Initiatives]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChallengerInitiativeCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeChallengerInitiative"
+  /v1/initiatives/{initiativeId}/sourcing:
+    parameters:
+      - $ref: "#/components/parameters/InitiativeId"
+    put:
+      operationId: setSourcingDecision
+      tags: [Initiatives]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SourcingDecision"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeChallengerInitiative"
+  /v1/decisions:
+    get:
+      operationId: listDecisions
+      tags: [Decisions]
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeDecisionRecord"
+    post:
+      operationId: recordDecision
+      tags: [Decisions]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DecisionRecordCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeDecisionRecord"
+  /v1/talent/gaps:
+    get:
+      operationId: listTalentGaps
+      tags: [Talent]
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeTalentGap"
+  /v1/packs:
+    post:
+      operationId: createExecPack
+      tags: [Packs]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExecPackCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeExecPack"
+  /v1/cases/shadow-it:
+    get:
+      operationId: listShadowITCases
+      tags: [Cases]
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeShadowITCase"
+    post:
+      operationId: openShadowITCase
+      tags: [Cases]
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShadowITCaseCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeShadowITCase"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+
+    SignalId:
+      name: signalId
+      in: path
+      required: true
+      schema: { type: string }
+    SystemId:
+      name: systemId
+      in: path
+      required: true
+      schema: { type: string }
+    PartnerId:
+      name: partnerId
+      in: path
+      required: true
+      schema: { type: string }
+    InitiativeId:
+      name: initiativeId
+      in: path
+      required: true
+      schema: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    NotFound:
+      description: Not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    UnprocessableEntity:
+      description: Unprocessable entity
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+  schemas:
+    ResponseMeta:
+      type: object
+      required: [requestId, timestamp]
+      properties:
+        requestId: { type: string }
+        timestamp: { type: string, format: date-time }
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+
+    SensingSignal:
+      type: object
+      required: [id, title, status]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        technologyArea: { type: string }
+        status: { type: string, enum: [new, assessing, decided] }
+    SensingSignalCreate:
+      type: object
+      required: [title, technologyArea]
+      properties:
+        title: { type: string }
+        technologyArea: { type: string }
+        sourceUri: { type: string, format: uri }
+    HypeAssessment:
+      type: object
+      required: [signalId, outcome]
+      properties:
+        signalId: { type: string }
+        hypeScore: { type: number }
+        outcome: { type: string, enum: [adopt, watch, reject] }
+        rationale: { type: string }
+    HypeAssessmentUpsert:
+      type: object
+      required: [outcome]
+      properties:
+        hypeScore: { type: number }
+        outcome: { type: string, enum: [adopt, watch, reject] }
+        rationale: { type: string }
+    CoreSystem:
+      type: object
+      required: [id, name, speedTag]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        speedTag: { type: string, enum: [runCareful, changeFast] }
+        disposition: { type: string, enum: [modernise, adapt, replace, retire, undecided] }
+        runSpendShare: { type: number }
+    CoreSystemCreate:
+      type: object
+      required: [name, speedTag]
+      properties:
+        name: { type: string }
+        speedTag: { type: string, enum: [runCareful, changeFast] }
+    DispositionUpdate:
+      type: object
+      required: [disposition]
+      properties:
+        disposition: { type: string, enum: [modernise, adapt, replace, retire] }
+        rationale: { type: string }
+    Partner:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        partnerType: { type: string }
+        criticality: { type: string, enum: [low, medium, high, systemic] }
+        concentrationScore: { type: number }
+    PartnerCreate:
+      type: object
+      required: [name, partnerType]
+      properties:
+        name: { type: string }
+        partnerType: { type: string }
+    CriticalityUpdate:
+      type: object
+      required: [criticality]
+      properties:
+        criticality: { type: string, enum: [low, medium, high, systemic] }
+        concentrationScore: { type: number }
+    ChallengerInitiative:
+      type: object
+      required: [id, name, status]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        status: { type: string, enum: [experiment, scale, killed] }
+        role: { type: string, enum: [strategist, bridge, ecosystem, startup] }
+        sourcing: { type: string, enum: [build, buy, rent, partner, undecided] }
+        killMetric: { type: string }
+    ChallengerInitiativeCreate:
+      type: object
+      required: [name, role]
+      properties:
+        name: { type: string }
+        role: { type: string, enum: [strategist, bridge, ecosystem, startup] }
+        killMetric: { type: string }
+    SourcingDecision:
+      type: object
+      required: [sourcing]
+      properties:
+        sourcing: { type: string, enum: [build, buy, rent, partner] }
+        rationale: { type: string }
+    DecisionRecord:
+      type: object
+      required: [id, decisionType, outcome]
+      properties:
+        id: { type: string }
+        decisionType: { type: string }
+        outcome: { type: string }
+        rationale: { type: string }
+        decidedAt: { type: string, format: date-time }
+    DecisionRecordCreate:
+      type: object
+      required: [decisionType, outcome]
+      properties:
+        decisionType: { type: string }
+        outcome: { type: string }
+        rationale: { type: string }
+        relatedEntityId: { type: string }
+    TalentGap:
+      type: object
+      required: [id, roleName, coverage]
+      properties:
+        id: { type: string }
+        roleName: { type: string }
+        coverage: { type: number }
+        relatedInitiativeId: { type: string }
+    ExecPack:
+      type: object
+      required: [id, status]
+      properties:
+        id: { type: string }
+        status: { type: string, enum: [draft, published] }
+        periodLabel: { type: string }
+        downloadUri: { type: string, format: uri }
+    ExecPackCreate:
+      type: object
+      required: [periodLabel]
+      properties:
+        periodLabel: { type: string }
+    ShadowITCase:
+      type: object
+      required: [id, status]
+      properties:
+        id: { type: string }
+        systemName: { type: string }
+        status: { type: string, enum: [open, remediating, closed] }
+    ShadowITCaseCreate:
+      type: object
+      required: [systemName]
+      properties:
+        systemName: { type: string }
+        discoveredVia: { type: string }
+
+    DataEnvelopeSensingSignal:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/SensingSignal"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeSensingSignal:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/SensingSignal"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    DataEnvelopeHypeAssessment:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/HypeAssessment"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeHypeAssessment:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/HypeAssessment"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    DataEnvelopeCoreSystem:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/CoreSystem"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeCoreSystem:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/CoreSystem"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    DataEnvelopePartner:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/Partner"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopePartner:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Partner"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    DataEnvelopeChallengerInitiative:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/ChallengerInitiative"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeChallengerInitiative:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/ChallengerInitiative"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    DataEnvelopeDecisionRecord:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/DecisionRecord"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeDecisionRecord:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/DecisionRecord"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    DataEnvelopeTalentGap:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/TalentGap"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeTalentGap:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/TalentGap"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    DataEnvelopeExecPack:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/ExecPack"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeExecPack:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/ExecPack"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+    DataEnvelopeShadowITCase:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/ShadowITCase"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeShadowITCase:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/ShadowITCase"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
