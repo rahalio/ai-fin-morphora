@@ -1,0 +1,21 @@
+---
+description: Never commit or push the local .codegen directory
+alwaysApply: true
+---
+
+# `.codegen` must never be committed
+
+The `.codegen/` directory holds the local `zero-codegen` tool and configs. It is **gitignored** and must **never** be committed or pushed to GitHub.
+
+Rules:
+
+- Do not `git add .codegen` or force-add ignored codegen paths.
+- Do not rename `.codegen` to a committed folder (e.g. `.codegen-morphora`) for the purpose of publishing the tool.
+- On a fresh clone, if `.codegen` is missing, copy it from the baseline scaffold:
+
+```bash
+rsync -a --exclude node_modules /path/to/zero-apps-codegen-scaffold/.codegen/ .codegen/
+pnpm codegen:paths
+```
+
+- Generated OpenAPI bundles under `packages/openapi-core/src/.bundled/` are also gitignored — regenerate with `pnpm bundle:openapi`.

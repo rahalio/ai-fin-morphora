@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-ink: #e6eaf2;
+  --color-indigo-950: #0a0e1a;
+  --color-indigo-900: #12182a;
+  --color-signal-yellow: #e8b931;
+  --color-steel-run: #7b8794;
+  --color-teal-change: #2dd4bf;
+  --color-chalk: #f1f5f9;
+  --color-breach: #f43f5e;
+  --font-display: 'DM Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --motion-stamp: 180ms ease-out;
+  --motion-rail: 220ms ease-in-out;
+  --motion-kill: 200ms ease-out;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--color-indigo-950);
+  color: var(--color-ink);
+  font-family: var(--font-dm-sans), var(--font-display);
+}
+
+body {
+  margin: 0;
+}
+
+.rail-bg {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(45, 212, 191, 0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(232, 185, 49, 0.05), transparent),
+    repeating-linear-gradient(
+      115deg,
+      transparent,
+      transparent 48px,
+      rgba(123, 135, 148, 0.04) 48px,
+      rgba(123, 135, 148, 0.04) 49px
+    );
+}
+
+@layer components {
+  .field {
+    @apply w-full rounded-sm border border-steel/40 bg-indigo-950 px-3 py-2 text-sm text-ink outline-none placeholder:text-steel/70 focus:border-teal/60;
+  }
+
+  .btn-primary {
+    @apply rounded-sm bg-teal px-4 py-2 text-sm font-medium text-indigo-950 transition hover:bg-teal/90 disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply rounded-sm border border-steel/40 px-3 py-1.5 text-sm text-ink/80 hover:border-ink/40 hover:text-ink disabled:opacity-50;
+  }
+
+  .panel {
+    @apply rounded-md border border-steel/25 bg-indigo-900/60 p-4;
+  }
+
+  .page-title {
+    @apply text-2xl font-semibold tracking-tight text-ink;
+  }
+
+  .page-sub {
+    @apply mt-1 text-sm text-steel;
+  }
+}

@@ -1,0 +1,36 @@
+apis:
+  identity:
+    root: src/identity.yaml
+  sensing:
+    root: src/sensing.yaml
+  footprint:
+    root: src/footprint.yaml
+  partners:
+    root: src/partners.yaml
+  initiatives:
+    root: src/initiatives.yaml
+  decisions:
+    root: src/decisions.yaml
+  talent:
+    root: src/talent.yaml
+  packs:
+    root: src/packs.yaml
+  cases:
+    root: src/cases.yaml
+
+extends:
+  - recommended
+
+rules:
+  no-unused-components: off
+  operation-4xx-response: warn
+  info-license: off
+  info-license-url: off
+  tag-description: off
+  operation-operationId: error
+  no-invalid-media-type-examples: off
+
+theme:
+  openapi:
+    generateCodeSamples:
+      languages: []

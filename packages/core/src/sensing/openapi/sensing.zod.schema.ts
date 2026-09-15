@@ -1,0 +1,752 @@
+import { makeApi, Zodios, type ZodiosOptions } from '@zodios/core';
+import { z } from 'zod';
+
+const createSensingSignal_Body = z
+  .object({
+    title: z.string().min(1).max(200),
+    technologyArea: z.string().min(1).max(120),
+    sourceUri: z.string().url().optional(),
+  })
+  .passthrough();
+const upsertHypeAssessment_Body = z
+  .object({
+    hypeScore: z.number().gte(0).lte(1),
+    recommendedOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+    assessmentNotes: z.string().max(4000).optional(),
+  })
+  .passthrough();
+const stampSensingDecision_Body = z
+  .object({
+    outcome: z.enum(['adopt', 'watch', 'reject']),
+    rationale: z.string().min(1).max(4000),
+  })
+  .passthrough();
+const Problem = z
+  .object({
+    type: z.string().url(),
+    title: z.string(),
+    status: z.number().int(),
+    detail: z.string(),
+    instance: z.string().url(),
+    code: z.string(),
+  })
+  .partial()
+  .passthrough();
+const SensingSignalId = z.string();
+const SensingSignalStatus = z.enum(['new', 'assessing', 'decided']);
+const HypeFilterOutcome = z.enum(['adopt', 'watch', 'reject']);
+const HypeAssessment = z
+  .object({
+    signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+    hypeScore: z.number().gte(0).lte(1).optional(),
+    recommendedOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+    assessmentNotes: z.string().max(4000).optional(),
+    assessedAt: z.string().datetime({ offset: true }),
+    assessedBy: z.string().max(120).optional(),
+  })
+  .passthrough();
+const SensingSignal = z
+  .object({
+    signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+    title: z.string().min(1).max(200),
+    technologyArea: z.string().min(1).max(120),
+    sourceUri: z.string().url().optional(),
+    status: z.enum(['new', 'assessing', 'decided']),
+    decisionOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+    decisionRationale: z.string().max(4000).optional(),
+    decidedAt: z.string().datetime({ offset: true }).optional(),
+    hypeAssessment: z
+      .object({
+        signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+        hypeScore: z.number().gte(0).lte(1).optional(),
+        recommendedOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+        assessmentNotes: z.string().max(4000).optional(),
+        assessedAt: z.string().datetime({ offset: true }),
+        assessedBy: z.string().max(120).optional(),
+      })
+      .passthrough()
+      .optional(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const SensingSignalListData = z
+  .object({
+    items: z.array(
+      z
+        .object({
+          signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+          title: z.string().min(1).max(200),
+          technologyArea: z.string().min(1).max(120),
+          sourceUri: z.string().url().optional(),
+          status: z.enum(['new', 'assessing', 'decided']),
+          decisionOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+          decisionRationale: z.string().max(4000).optional(),
+          decidedAt: z.string().datetime({ offset: true }).optional(),
+          hypeAssessment: z
+            .object({
+              signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+              hypeScore: z.number().gte(0).lte(1).optional(),
+              recommendedOutcome: z
+                .enum(['adopt', 'watch', 'reject'])
+                .optional(),
+              assessmentNotes: z.string().max(4000).optional(),
+              assessedAt: z.string().datetime({ offset: true }),
+              assessedBy: z.string().max(120).optional(),
+            })
+            .passthrough()
+            .optional(),
+          createdAt: z.string().datetime({ offset: true }),
+          updatedAt: z.string().datetime({ offset: true }),
+        })
+        .passthrough()
+    ),
+  })
+  .passthrough();
+const ResponseMeta = z
+  .object({
+    requestId: z.string().uuid(),
+    correlationId: z.string(),
+    generatedAt: z.string().datetime({ offset: true }),
+  })
+  .partial()
+  .passthrough();
+const SensingSignalListResponse = z
+  .object({
+    data: z
+      .object({
+        items: z.array(
+          z
+            .object({
+              signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+              title: z.string().min(1).max(200),
+              technologyArea: z.string().min(1).max(120),
+              sourceUri: z.string().url().optional(),
+              status: z.enum(['new', 'assessing', 'decided']),
+              decisionOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+              decisionRationale: z.string().max(4000).optional(),
+              decidedAt: z.string().datetime({ offset: true }).optional(),
+              hypeAssessment: z
+                .object({
+                  signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+                  hypeScore: z.number().gte(0).lte(1).optional(),
+                  recommendedOutcome: z
+                    .enum(['adopt', 'watch', 'reject'])
+                    .optional(),
+                  assessmentNotes: z.string().max(4000).optional(),
+                  assessedAt: z.string().datetime({ offset: true }),
+                  assessedBy: z.string().max(120).optional(),
+                })
+                .passthrough()
+                .optional(),
+              createdAt: z.string().datetime({ offset: true }),
+              updatedAt: z.string().datetime({ offset: true }),
+            })
+            .passthrough()
+        ),
+      })
+      .passthrough(),
+    meta: z
+      .object({
+        requestId: z.string().uuid(),
+        correlationId: z.string(),
+        generatedAt: z.string().datetime({ offset: true }),
+      })
+      .partial()
+      .passthrough()
+      .optional(),
+  })
+  .passthrough();
+const SensingSignalCreateRequest = z
+  .object({
+    title: z.string().min(1).max(200),
+    technologyArea: z.string().min(1).max(120),
+    sourceUri: z.string().url().optional(),
+  })
+  .passthrough();
+const SensingSignalResponse = z
+  .object({
+    data: z
+      .object({
+        signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+        title: z.string().min(1).max(200),
+        technologyArea: z.string().min(1).max(120),
+        sourceUri: z.string().url().optional(),
+        status: z.enum(['new', 'assessing', 'decided']),
+        decisionOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+        decisionRationale: z.string().max(4000).optional(),
+        decidedAt: z.string().datetime({ offset: true }).optional(),
+        hypeAssessment: z
+          .object({
+            signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+            hypeScore: z.number().gte(0).lte(1).optional(),
+            recommendedOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+            assessmentNotes: z.string().max(4000).optional(),
+            assessedAt: z.string().datetime({ offset: true }),
+            assessedBy: z.string().max(120).optional(),
+          })
+          .passthrough()
+          .optional(),
+        createdAt: z.string().datetime({ offset: true }),
+        updatedAt: z.string().datetime({ offset: true }),
+      })
+      .passthrough(),
+    meta: z
+      .object({
+        requestId: z.string().uuid(),
+        correlationId: z.string(),
+        generatedAt: z.string().datetime({ offset: true }),
+      })
+      .partial()
+      .passthrough()
+      .optional(),
+  })
+  .passthrough();
+const HypeAssessmentUpsertRequest = z
+  .object({
+    hypeScore: z.number().gte(0).lte(1),
+    recommendedOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+    assessmentNotes: z.string().max(4000).optional(),
+  })
+  .passthrough();
+const HypeAssessmentResponse = z
+  .object({
+    data: z
+      .object({
+        signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+        hypeScore: z.number().gte(0).lte(1).optional(),
+        recommendedOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+        assessmentNotes: z.string().max(4000).optional(),
+        assessedAt: z.string().datetime({ offset: true }),
+        assessedBy: z.string().max(120).optional(),
+      })
+      .passthrough(),
+    meta: z
+      .object({
+        requestId: z.string().uuid(),
+        correlationId: z.string(),
+        generatedAt: z.string().datetime({ offset: true }),
+      })
+      .partial()
+      .passthrough()
+      .optional(),
+  })
+  .passthrough();
+const StampSignalDecisionRequest = z
+  .object({
+    outcome: z.enum(['adopt', 'watch', 'reject']),
+    rationale: z.string().min(1).max(4000),
+  })
+  .passthrough();
+
+export const schemas: any = {
+  createSensingSignal_Body,
+  upsertHypeAssessment_Body,
+  stampSensingDecision_Body,
+  Problem,
+  SensingSignalId,
+  SensingSignalStatus,
+  HypeFilterOutcome,
+  HypeAssessment,
+  SensingSignal,
+  SensingSignalListData,
+  ResponseMeta,
+  SensingSignalListResponse,
+  SensingSignalCreateRequest,
+  SensingSignalResponse,
+  HypeAssessmentUpsertRequest,
+  HypeAssessmentResponse,
+  StampSignalDecisionRequest,
+};
+
+const endpoints = makeApi([
+  {
+    method: 'get',
+    path: '/v0/tenants/me/sensing/signals',
+    alias: 'listSensingSignals',
+    requestFormat: 'json',
+    response: z
+      .object({
+        data: z
+          .object({
+            items: z.array(
+              z
+                .object({
+                  signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+                  title: z.string().min(1).max(200),
+                  technologyArea: z.string().min(1).max(120),
+                  sourceUri: z.string().url().optional(),
+                  status: z.enum(['new', 'assessing', 'decided']),
+                  decisionOutcome: z
+                    .enum(['adopt', 'watch', 'reject'])
+                    .optional(),
+                  decisionRationale: z.string().max(4000).optional(),
+                  decidedAt: z.string().datetime({ offset: true }).optional(),
+                  hypeAssessment: z
+                    .object({
+                      signalId: z
+                        .string()
+                        .regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+                      hypeScore: z.number().gte(0).lte(1).optional(),
+                      recommendedOutcome: z
+                        .enum(['adopt', 'watch', 'reject'])
+                        .optional(),
+                      assessmentNotes: z.string().max(4000).optional(),
+                      assessedAt: z.string().datetime({ offset: true }),
+                      assessedBy: z.string().max(120).optional(),
+                    })
+                    .passthrough()
+                    .optional(),
+                  createdAt: z.string().datetime({ offset: true }),
+                  updatedAt: z.string().datetime({ offset: true }),
+                })
+                .passthrough()
+            ),
+          })
+          .passthrough(),
+        meta: z
+          .object({
+            requestId: z.string().uuid(),
+            correlationId: z.string(),
+            generatedAt: z.string().datetime({ offset: true }),
+          })
+          .partial()
+          .passthrough()
+          .optional(),
+      })
+      .passthrough(),
+    errors: [
+      {
+        status: 401,
+        description: `Missing or invalid API key`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/v0/tenants/me/sensing/signals',
+    alias: 'createSensingSignal',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: createSensingSignal_Body,
+      },
+      {
+        name: 'Idempotency-Key',
+        type: 'Header',
+        schema: z.string().min(1).max(128),
+      },
+    ],
+    response: z
+      .object({
+        data: z
+          .object({
+            signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+            title: z.string().min(1).max(200),
+            technologyArea: z.string().min(1).max(120),
+            sourceUri: z.string().url().optional(),
+            status: z.enum(['new', 'assessing', 'decided']),
+            decisionOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+            decisionRationale: z.string().max(4000).optional(),
+            decidedAt: z.string().datetime({ offset: true }).optional(),
+            hypeAssessment: z
+              .object({
+                signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+                hypeScore: z.number().gte(0).lte(1).optional(),
+                recommendedOutcome: z
+                  .enum(['adopt', 'watch', 'reject'])
+                  .optional(),
+                assessmentNotes: z.string().max(4000).optional(),
+                assessedAt: z.string().datetime({ offset: true }),
+                assessedBy: z.string().max(120).optional(),
+              })
+              .passthrough()
+              .optional(),
+            createdAt: z.string().datetime({ offset: true }),
+            updatedAt: z.string().datetime({ offset: true }),
+          })
+          .passthrough(),
+        meta: z
+          .object({
+            requestId: z.string().uuid(),
+            correlationId: z.string(),
+            generatedAt: z.string().datetime({ offset: true }),
+          })
+          .partial()
+          .passthrough()
+          .optional(),
+      })
+      .passthrough(),
+    errors: [
+      {
+        status: 400,
+        description: `Malformed request`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 401,
+        description: `Missing or invalid API key`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 409,
+        description: `Idempotency key reuse with different body, or state conflict`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/v0/tenants/me/sensing/signals/:signalId',
+    alias: 'getSensingSignal',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'signalId',
+        type: 'Path',
+        schema: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+      },
+    ],
+    response: z
+      .object({
+        data: z
+          .object({
+            signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+            title: z.string().min(1).max(200),
+            technologyArea: z.string().min(1).max(120),
+            sourceUri: z.string().url().optional(),
+            status: z.enum(['new', 'assessing', 'decided']),
+            decisionOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+            decisionRationale: z.string().max(4000).optional(),
+            decidedAt: z.string().datetime({ offset: true }).optional(),
+            hypeAssessment: z
+              .object({
+                signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+                hypeScore: z.number().gte(0).lte(1).optional(),
+                recommendedOutcome: z
+                  .enum(['adopt', 'watch', 'reject'])
+                  .optional(),
+                assessmentNotes: z.string().max(4000).optional(),
+                assessedAt: z.string().datetime({ offset: true }),
+                assessedBy: z.string().max(120).optional(),
+              })
+              .passthrough()
+              .optional(),
+            createdAt: z.string().datetime({ offset: true }),
+            updatedAt: z.string().datetime({ offset: true }),
+          })
+          .passthrough(),
+        meta: z
+          .object({
+            requestId: z.string().uuid(),
+            correlationId: z.string(),
+            generatedAt: z.string().datetime({ offset: true }),
+          })
+          .partial()
+          .passthrough()
+          .optional(),
+      })
+      .passthrough(),
+    errors: [
+      {
+        status: 401,
+        description: `Missing or invalid API key`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 404,
+        description: `Resource not found`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/v0/tenants/me/sensing/signals/:signalId/decision',
+    alias: 'stampSensingDecision',
+    description: `Records adopt / watch / reject with rationale. Immutable once accepted.
+Conflicts if the signal was already decided.
+`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: stampSensingDecision_Body,
+      },
+      {
+        name: 'signalId',
+        type: 'Path',
+        schema: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+      },
+      {
+        name: 'Idempotency-Key',
+        type: 'Header',
+        schema: z.string().min(1).max(128),
+      },
+    ],
+    response: z
+      .object({
+        data: z
+          .object({
+            signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+            title: z.string().min(1).max(200),
+            technologyArea: z.string().min(1).max(120),
+            sourceUri: z.string().url().optional(),
+            status: z.enum(['new', 'assessing', 'decided']),
+            decisionOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+            decisionRationale: z.string().max(4000).optional(),
+            decidedAt: z.string().datetime({ offset: true }).optional(),
+            hypeAssessment: z
+              .object({
+                signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+                hypeScore: z.number().gte(0).lte(1).optional(),
+                recommendedOutcome: z
+                  .enum(['adopt', 'watch', 'reject'])
+                  .optional(),
+                assessmentNotes: z.string().max(4000).optional(),
+                assessedAt: z.string().datetime({ offset: true }),
+                assessedBy: z.string().max(120).optional(),
+              })
+              .passthrough()
+              .optional(),
+            createdAt: z.string().datetime({ offset: true }),
+            updatedAt: z.string().datetime({ offset: true }),
+          })
+          .passthrough(),
+        meta: z
+          .object({
+            requestId: z.string().uuid(),
+            correlationId: z.string(),
+            generatedAt: z.string().datetime({ offset: true }),
+          })
+          .partial()
+          .passthrough()
+          .optional(),
+      })
+      .passthrough(),
+    errors: [
+      {
+        status: 400,
+        description: `Malformed request`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 401,
+        description: `Missing or invalid API key`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 404,
+        description: `Resource not found`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 409,
+        description: `Idempotency key reuse with different body, or state conflict`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+    ],
+  },
+  {
+    method: 'put',
+    path: '/v0/tenants/me/sensing/signals/:signalId/hype-assessment',
+    alias: 'upsertHypeAssessment',
+    description: `Scores hype vs reality and optional recommended outcome before stamp.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: upsertHypeAssessment_Body,
+      },
+      {
+        name: 'signalId',
+        type: 'Path',
+        schema: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+      },
+    ],
+    response: z
+      .object({
+        data: z
+          .object({
+            signalId: z.string().regex(/^sns_[0-9a-hjkmnp-tv-z]{26}$/),
+            hypeScore: z.number().gte(0).lte(1).optional(),
+            recommendedOutcome: z.enum(['adopt', 'watch', 'reject']).optional(),
+            assessmentNotes: z.string().max(4000).optional(),
+            assessedAt: z.string().datetime({ offset: true }),
+            assessedBy: z.string().max(120).optional(),
+          })
+          .passthrough(),
+        meta: z
+          .object({
+            requestId: z.string().uuid(),
+            correlationId: z.string(),
+            generatedAt: z.string().datetime({ offset: true }),
+          })
+          .partial()
+          .passthrough()
+          .optional(),
+      })
+      .passthrough(),
+    errors: [
+      {
+        status: 400,
+        description: `Malformed request`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 401,
+        description: `Missing or invalid API key`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 404,
+        description: `Resource not found`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+    ],
+  },
+]);
+
+export const api: any = new Zodios(
+  'https://api.ddd-codegen-starter.local/v1',
+  endpoints
+);
+
+export function createApiClient(baseUrl: string, options?: ZodiosOptions): any {
+  return new Zodios(baseUrl, endpoints, options);
+}

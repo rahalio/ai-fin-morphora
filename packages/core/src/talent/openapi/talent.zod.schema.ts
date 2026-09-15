@@ -1,0 +1,511 @@
+import { makeApi, Zodios, type ZodiosOptions } from '@zodios/core';
+import { z } from 'zod';
+
+const createTalentGap_Body = z
+  .object({
+    roleName: z.string().min(1).max(120),
+    coverage: z.number().gte(0).lte(1),
+    relatedInitiativeId: z
+      .string()
+      .regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/)
+      .optional(),
+    severity: z.enum(['low', 'medium', 'high']),
+    notes: z.string().max(2000).optional(),
+  })
+  .passthrough();
+const updateTalentGap_Body = z
+  .object({
+    roleName: z.string().min(1).max(120),
+    coverage: z.number().gte(0).lte(1),
+    relatedInitiativeId: z.string().regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/),
+    severity: z.enum(['low', 'medium', 'high']),
+    notes: z.string().max(2000),
+  })
+  .partial()
+  .passthrough();
+const Problem = z
+  .object({
+    type: z.string().url(),
+    title: z.string(),
+    status: z.number().int(),
+    detail: z.string(),
+    instance: z.string().url(),
+    code: z.string(),
+  })
+  .partial()
+  .passthrough();
+const TalentGapId = z.string();
+const InitiativeIdRef = z.string();
+const TalentSeverity = z.enum(['low', 'medium', 'high']);
+const TalentGap = z
+  .object({
+    gapId: z.string().regex(/^tln_[0-9a-hjkmnp-tv-z]{26}$/),
+    roleName: z.string().min(1).max(120),
+    coverage: z.number().gte(0).lte(1),
+    relatedInitiativeId: z
+      .string()
+      .regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/)
+      .optional(),
+    severity: z.enum(['low', 'medium', 'high']),
+    notes: z.string().max(2000).optional(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const TalentGapListData = z
+  .object({
+    items: z.array(
+      z
+        .object({
+          gapId: z.string().regex(/^tln_[0-9a-hjkmnp-tv-z]{26}$/),
+          roleName: z.string().min(1).max(120),
+          coverage: z.number().gte(0).lte(1),
+          relatedInitiativeId: z
+            .string()
+            .regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/)
+            .optional(),
+          severity: z.enum(['low', 'medium', 'high']),
+          notes: z.string().max(2000).optional(),
+          createdAt: z.string().datetime({ offset: true }),
+          updatedAt: z.string().datetime({ offset: true }),
+        })
+        .passthrough()
+    ),
+  })
+  .passthrough();
+const ResponseMeta = z
+  .object({
+    requestId: z.string().uuid(),
+    correlationId: z.string(),
+    generatedAt: z.string().datetime({ offset: true }),
+  })
+  .partial()
+  .passthrough();
+const TalentGapListResponse = z
+  .object({
+    data: z
+      .object({
+        items: z.array(
+          z
+            .object({
+              gapId: z.string().regex(/^tln_[0-9a-hjkmnp-tv-z]{26}$/),
+              roleName: z.string().min(1).max(120),
+              coverage: z.number().gte(0).lte(1),
+              relatedInitiativeId: z
+                .string()
+                .regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/)
+                .optional(),
+              severity: z.enum(['low', 'medium', 'high']),
+              notes: z.string().max(2000).optional(),
+              createdAt: z.string().datetime({ offset: true }),
+              updatedAt: z.string().datetime({ offset: true }),
+            })
+            .passthrough()
+        ),
+      })
+      .passthrough(),
+    meta: z
+      .object({
+        requestId: z.string().uuid(),
+        correlationId: z.string(),
+        generatedAt: z.string().datetime({ offset: true }),
+      })
+      .partial()
+      .passthrough()
+      .optional(),
+  })
+  .passthrough();
+const TalentGapCreateRequest = z
+  .object({
+    roleName: z.string().min(1).max(120),
+    coverage: z.number().gte(0).lte(1),
+    relatedInitiativeId: z
+      .string()
+      .regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/)
+      .optional(),
+    severity: z.enum(['low', 'medium', 'high']),
+    notes: z.string().max(2000).optional(),
+  })
+  .passthrough();
+const TalentGapResponse = z
+  .object({
+    data: z
+      .object({
+        gapId: z.string().regex(/^tln_[0-9a-hjkmnp-tv-z]{26}$/),
+        roleName: z.string().min(1).max(120),
+        coverage: z.number().gte(0).lte(1),
+        relatedInitiativeId: z
+          .string()
+          .regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/)
+          .optional(),
+        severity: z.enum(['low', 'medium', 'high']),
+        notes: z.string().max(2000).optional(),
+        createdAt: z.string().datetime({ offset: true }),
+        updatedAt: z.string().datetime({ offset: true }),
+      })
+      .passthrough(),
+    meta: z
+      .object({
+        requestId: z.string().uuid(),
+        correlationId: z.string(),
+        generatedAt: z.string().datetime({ offset: true }),
+      })
+      .partial()
+      .passthrough()
+      .optional(),
+  })
+  .passthrough();
+const TalentGapUpdateRequest = z
+  .object({
+    roleName: z.string().min(1).max(120),
+    coverage: z.number().gte(0).lte(1),
+    relatedInitiativeId: z.string().regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/),
+    severity: z.enum(['low', 'medium', 'high']),
+    notes: z.string().max(2000),
+  })
+  .partial()
+  .passthrough();
+
+export const schemas: any = {
+  createTalentGap_Body,
+  updateTalentGap_Body,
+  Problem,
+  TalentGapId,
+  InitiativeIdRef,
+  TalentSeverity,
+  TalentGap,
+  TalentGapListData,
+  ResponseMeta,
+  TalentGapListResponse,
+  TalentGapCreateRequest,
+  TalentGapResponse,
+  TalentGapUpdateRequest,
+};
+
+const endpoints = makeApi([
+  {
+    method: 'get',
+    path: '/v0/tenants/me/talent/gaps',
+    alias: 'listTalentGaps',
+    requestFormat: 'json',
+    response: z
+      .object({
+        data: z
+          .object({
+            items: z.array(
+              z
+                .object({
+                  gapId: z.string().regex(/^tln_[0-9a-hjkmnp-tv-z]{26}$/),
+                  roleName: z.string().min(1).max(120),
+                  coverage: z.number().gte(0).lte(1),
+                  relatedInitiativeId: z
+                    .string()
+                    .regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/)
+                    .optional(),
+                  severity: z.enum(['low', 'medium', 'high']),
+                  notes: z.string().max(2000).optional(),
+                  createdAt: z.string().datetime({ offset: true }),
+                  updatedAt: z.string().datetime({ offset: true }),
+                })
+                .passthrough()
+            ),
+          })
+          .passthrough(),
+        meta: z
+          .object({
+            requestId: z.string().uuid(),
+            correlationId: z.string(),
+            generatedAt: z.string().datetime({ offset: true }),
+          })
+          .partial()
+          .passthrough()
+          .optional(),
+      })
+      .passthrough(),
+    errors: [
+      {
+        status: 401,
+        description: `Missing or invalid API key`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/v0/tenants/me/talent/gaps',
+    alias: 'createTalentGap',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: createTalentGap_Body,
+      },
+      {
+        name: 'Idempotency-Key',
+        type: 'Header',
+        schema: z.string().min(1).max(128),
+      },
+    ],
+    response: z
+      .object({
+        data: z
+          .object({
+            gapId: z.string().regex(/^tln_[0-9a-hjkmnp-tv-z]{26}$/),
+            roleName: z.string().min(1).max(120),
+            coverage: z.number().gte(0).lte(1),
+            relatedInitiativeId: z
+              .string()
+              .regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/)
+              .optional(),
+            severity: z.enum(['low', 'medium', 'high']),
+            notes: z.string().max(2000).optional(),
+            createdAt: z.string().datetime({ offset: true }),
+            updatedAt: z.string().datetime({ offset: true }),
+          })
+          .passthrough(),
+        meta: z
+          .object({
+            requestId: z.string().uuid(),
+            correlationId: z.string(),
+            generatedAt: z.string().datetime({ offset: true }),
+          })
+          .partial()
+          .passthrough()
+          .optional(),
+      })
+      .passthrough(),
+    errors: [
+      {
+        status: 400,
+        description: `Malformed request`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 401,
+        description: `Missing or invalid API key`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 409,
+        description: `Idempotency key reuse with different body, or state conflict`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/v0/tenants/me/talent/gaps/:gapId',
+    alias: 'getTalentGap',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'gapId',
+        type: 'Path',
+        schema: z.string().regex(/^tln_[0-9a-hjkmnp-tv-z]{26}$/),
+      },
+    ],
+    response: z
+      .object({
+        data: z
+          .object({
+            gapId: z.string().regex(/^tln_[0-9a-hjkmnp-tv-z]{26}$/),
+            roleName: z.string().min(1).max(120),
+            coverage: z.number().gte(0).lte(1),
+            relatedInitiativeId: z
+              .string()
+              .regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/)
+              .optional(),
+            severity: z.enum(['low', 'medium', 'high']),
+            notes: z.string().max(2000).optional(),
+            createdAt: z.string().datetime({ offset: true }),
+            updatedAt: z.string().datetime({ offset: true }),
+          })
+          .passthrough(),
+        meta: z
+          .object({
+            requestId: z.string().uuid(),
+            correlationId: z.string(),
+            generatedAt: z.string().datetime({ offset: true }),
+          })
+          .partial()
+          .passthrough()
+          .optional(),
+      })
+      .passthrough(),
+    errors: [
+      {
+        status: 401,
+        description: `Missing or invalid API key`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 404,
+        description: `Resource not found`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/v0/tenants/me/talent/gaps/:gapId',
+    alias: 'updateTalentGap',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: updateTalentGap_Body,
+      },
+      {
+        name: 'gapId',
+        type: 'Path',
+        schema: z.string().regex(/^tln_[0-9a-hjkmnp-tv-z]{26}$/),
+      },
+    ],
+    response: z
+      .object({
+        data: z
+          .object({
+            gapId: z.string().regex(/^tln_[0-9a-hjkmnp-tv-z]{26}$/),
+            roleName: z.string().min(1).max(120),
+            coverage: z.number().gte(0).lte(1),
+            relatedInitiativeId: z
+              .string()
+              .regex(/^ini_[0-9a-hjkmnp-tv-z]{26}$/)
+              .optional(),
+            severity: z.enum(['low', 'medium', 'high']),
+            notes: z.string().max(2000).optional(),
+            createdAt: z.string().datetime({ offset: true }),
+            updatedAt: z.string().datetime({ offset: true }),
+          })
+          .passthrough(),
+        meta: z
+          .object({
+            requestId: z.string().uuid(),
+            correlationId: z.string(),
+            generatedAt: z.string().datetime({ offset: true }),
+          })
+          .partial()
+          .passthrough()
+          .optional(),
+      })
+      .passthrough(),
+    errors: [
+      {
+        status: 400,
+        description: `Malformed request`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 401,
+        description: `Missing or invalid API key`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+      {
+        status: 404,
+        description: `Resource not found`,
+        schema: z
+          .object({
+            type: z.string().url(),
+            title: z.string(),
+            status: z.number().int(),
+            detail: z.string(),
+            instance: z.string().url(),
+            code: z.string(),
+          })
+          .partial()
+          .passthrough(),
+      },
+    ],
+  },
+]);
+
+export const api: any = new Zodios(
+  'https://api.ddd-codegen-starter.local/v1',
+  endpoints
+);
+
+export function createApiClient(baseUrl: string, options?: ZodiosOptions): any {
+  return new Zodios(baseUrl, endpoints, options);
+}

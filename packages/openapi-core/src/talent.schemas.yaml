@@ -1,0 +1,129 @@
+openapi: 3.1.0
+info:
+  title: Talent schemas
+  version: 0.1.0
+  description: |
+    Critical-role talent coverage gaps for dual-speed delivery (BR-8).
+paths: {}
+components:
+  schemas:
+    TalentGapId:
+      type: string
+      pattern: '^tln_[0-9a-hjkmnp-tv-z]{26}$'
+      description: Prefixed talent gap id (tln_ + lowercase Crockford ULID).
+
+    InitiativeIdRef:
+      type: string
+      pattern: '^ini_[0-9a-hjkmnp-tv-z]{26}$'
+
+    TalentSeverity:
+      type: string
+      enum: [low, medium, high]
+
+    TalentGap:
+      type: object
+      required:
+        - gapId
+        - roleName
+        - coverage
+        - severity
+        - createdAt
+        - updatedAt
+      properties:
+        gapId:
+          $ref: '#/components/schemas/TalentGapId'
+        roleName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        coverage:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Current coverage ratio (0–1).
+        relatedInitiativeId:
+          $ref: '#/components/schemas/InitiativeIdRef'
+        severity:
+          $ref: '#/components/schemas/TalentSeverity'
+        notes:
+          type: string
+          maxLength: 2000
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TalentGapCreateRequest:
+      type: object
+      required:
+        - roleName
+        - coverage
+        - severity
+      properties:
+        roleName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        coverage:
+          type: number
+          minimum: 0
+          maximum: 1
+        relatedInitiativeId:
+          $ref: '#/components/schemas/InitiativeIdRef'
+        severity:
+          $ref: '#/components/schemas/TalentSeverity'
+        notes:
+          type: string
+          maxLength: 2000
+
+    TalentGapUpdateRequest:
+      type: object
+      description: Partial update of coverage, severity, notes, or related initiative.
+      properties:
+        roleName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        coverage:
+          type: number
+          minimum: 0
+          maximum: 1
+        relatedInitiativeId:
+          $ref: '#/components/schemas/InitiativeIdRef'
+        severity:
+          $ref: '#/components/schemas/TalentSeverity'
+        notes:
+          type: string
+          maxLength: 2000
+
+    TalentGapListData:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TalentGap'
+
+    TalentGapResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/TalentGap'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    TalentGapListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/TalentGapListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

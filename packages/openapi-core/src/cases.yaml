@@ -1,0 +1,130 @@
+openapi: 3.1.0
+info:
+  title: Cases API
+  version: 0.1.0
+  description: |
+    Shadow-IT remediation cases for systems discovered outside the dual-speed map (BR-10).
+  license:
+    name: Proprietary
+    url: https://morphora.local/license
+  x-domain: cse
+servers:
+  - url: https://api.morphora.local
+    description: Local / starter API
+security:
+  - apiKey: []
+tags:
+  - name: Cases
+    description: Shadow IT remediation
+paths:
+  /v0/tenants/me/cases/shadow-it:
+    get:
+      operationId: listShadowITCases
+      tags: [Cases]
+      summary: List shadow-IT cases
+      responses:
+        '200':
+          description: Shadow-IT cases
+          content:
+            application/json:
+              schema:
+                $ref: ./cases.schemas.yaml#/components/schemas/ShadowITCaseListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: openShadowITCase
+      tags: [Cases]
+      summary: Open a shadow-IT remediation case
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./cases.schemas.yaml#/components/schemas/ShadowITCaseCreateRequest
+      responses:
+        '201':
+          description: Case opened
+          content:
+            application/json:
+              schema:
+                $ref: ./cases.schemas.yaml#/components/schemas/ShadowITCaseResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/cases/shadow-it/{caseId}:
+    get:
+      operationId: getShadowITCase
+      tags: [Cases]
+      summary: Get a shadow-IT case
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            $ref: ./cases.schemas.yaml#/components/schemas/ShadowITCaseId
+      responses:
+        '200':
+          description: Shadow-IT case
+          content:
+            application/json:
+              schema:
+                $ref: ./cases.schemas.yaml#/components/schemas/ShadowITCaseResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/cases/shadow-it/{caseId}/remediate:
+    put:
+      operationId: remediateShadowITCase
+      tags: [Cases]
+      summary: Remediate a shadow-IT case
+      description: |
+        Apply mapToFootprint, retire, or escalate. Optional footprintSystemId
+        when mapping into the dual-speed inventory.
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            $ref: ./cases.schemas.yaml#/components/schemas/ShadowITCaseId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./cases.schemas.yaml#/components/schemas/RemediateShadowITCaseRequest
+      responses:
+        '200':
+          description: Case remediated
+          content:
+            application/json:
+              schema:
+                $ref: ./cases.schemas.yaml#/components/schemas/ShadowITCaseResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

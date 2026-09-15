@@ -1,0 +1,115 @@
+openapi: 3.1.0
+info:
+  title: Decisions API
+  version: 0.1.0
+  description: |
+    Immutable CIO operating decision ledger plus cadence-home aggregate stub.
+    Decision rows are append-only — no update or delete paths.
+  license:
+    name: Proprietary
+    url: https://morphora.local/license
+  x-domain: dec
+servers:
+  - url: https://api.morphora.local
+    description: Local / starter API
+security:
+  - apiKey: []
+tags:
+  - name: Decisions
+    description: Immutable CIO decision ledger
+  - name: Cadence
+    description: Cadence home aggregate (stub)
+paths:
+  /v0/tenants/me/decisions:
+    get:
+      operationId: listDecisions
+      tags: [Decisions]
+      summary: List decision ledger entries
+      responses:
+        '200':
+          description: Decision records
+          content:
+            application/json:
+              schema:
+                $ref: ./decisions.schemas.yaml#/components/schemas/DecisionRecordListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: recordDecision
+      tags: [Decisions]
+      summary: Append an immutable decision record
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./decisions.schemas.yaml#/components/schemas/DecisionRecordCreateRequest
+      responses:
+        '201':
+          description: Decision recorded
+          content:
+            application/json:
+              schema:
+                $ref: ./decisions.schemas.yaml#/components/schemas/DecisionRecordResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/decisions/{decisionId}:
+    get:
+      operationId: getDecision
+      tags: [Decisions]
+      summary: Get a decision ledger entry
+      parameters:
+        - name: decisionId
+          in: path
+          required: true
+          schema:
+            $ref: ./decisions.schemas.yaml#/components/schemas/DecisionId
+      responses:
+        '200':
+          description: Decision record
+          content:
+            application/json:
+              schema:
+                $ref: ./decisions.schemas.yaml#/components/schemas/DecisionRecordResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/cadence/summary:
+    get:
+      operationId: getCadenceSummary
+      tags: [Cadence]
+      summary: Cadence home aggregate
+      description: |
+        Stub aggregate for due decisions and shapeshifter role ritual status.
+      x-maturity: stub
+      responses:
+        '200':
+          description: Cadence summary
+          content:
+            application/json:
+              schema:
+                $ref: ./decisions.schemas.yaml#/components/schemas/CadenceSummaryResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

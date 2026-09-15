@@ -1,0 +1,142 @@
+openapi: 3.1.0
+info:
+  title: Packs schemas
+  version: 0.1.0
+  description: |
+    Executive and board packs — stretch/squeeze, spend mix, concentration, challenger narrative (BR-11).
+paths: {}
+components:
+  schemas:
+    ExecPackId:
+      type: string
+      pattern: '^pck_[0-9a-hjkmnp-tv-z]{26}$'
+      description: Prefixed exec pack id (pck_ + lowercase Crockford ULID).
+
+    ExecPackStatus:
+      type: string
+      enum: [draft, published]
+
+    ExecPack:
+      type: object
+      required:
+        - packId
+        - status
+        - periodLabel
+        - createdAt
+        - updatedAt
+      properties:
+        packId:
+          $ref: '#/components/schemas/ExecPackId'
+        status:
+          $ref: '#/components/schemas/ExecPackStatus'
+        periodLabel:
+          type: string
+          minLength: 1
+          maxLength: 80
+          description: e.g. "FY26 Q1 ExCo" or "Board Mar 2026".
+        narrative:
+          type: string
+          maxLength: 8000
+        downloadUri:
+          type: string
+          format: uri
+        shareToken:
+          type: string
+          maxLength: 128
+          description: Optional opaque share token for published packs.
+        stretchSqueezeNote:
+          type: string
+          maxLength: 4000
+        spendMixNote:
+          type: string
+          maxLength: 4000
+        concentrationNote:
+          type: string
+          maxLength: 4000
+        challengerNote:
+          type: string
+          maxLength: 4000
+        publishedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ExecPackCreateRequest:
+      type: object
+      required:
+        - periodLabel
+      properties:
+        periodLabel:
+          type: string
+          minLength: 1
+          maxLength: 80
+        narrative:
+          type: string
+          maxLength: 8000
+        stretchSqueezeNote:
+          type: string
+          maxLength: 4000
+        spendMixNote:
+          type: string
+          maxLength: 4000
+        concentrationNote:
+          type: string
+          maxLength: 4000
+        challengerNote:
+          type: string
+          maxLength: 4000
+
+    PublishExecPackRequest:
+      type: object
+      description: Optional notes refresh at publish time; empty body is allowed.
+      properties:
+        narrative:
+          type: string
+          maxLength: 8000
+        stretchSqueezeNote:
+          type: string
+          maxLength: 4000
+        spendMixNote:
+          type: string
+          maxLength: 4000
+        concentrationNote:
+          type: string
+          maxLength: 4000
+        challengerNote:
+          type: string
+          maxLength: 4000
+
+    ExecPackListData:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExecPack'
+
+    ExecPackResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/ExecPack'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    ExecPackListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/ExecPackListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

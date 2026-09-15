@@ -1,0 +1,18 @@
+{
+  "name": "@morphora/openapi-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenAPI contracts for Morphora (common + identity + product domains)",
+  "scripts": {
+    "lint:domains": "redocly lint",
+    "bundle:domains": "mkdir -p src/.bundled && redocly bundle identity --output src/.bundled/identity.openapi.yaml && redocly bundle identity --output src/.bundled/identity.json && redocly bundle sensing --output src/.bundled/sensing.openapi.yaml && redocly bundle sensing --output src/.bundled/sensing.json && redocly bundle footprint --output src/.bundled/footprint.openapi.yaml && redocly bundle footprint --output src/.bundled/footprint.json && redocly bundle partners --output src/.bundled/partners.openapi.yaml && redocly bundle partners --output src/.bundled/partners.json && redocly bundle initiatives --output src/.bundled/initiatives.openapi.yaml && redocly bundle initiatives --output src/.bundled/initiatives.json && redocly bundle decisions --output src/.bundled/decisions.openapi.yaml && redocly bundle decisions --output src/.bundled/decisions.json && redocly bundle talent --output src/.bundled/talent.openapi.yaml && redocly bundle talent --output src/.bundled/talent.json && redocly bundle packs --output src/.bundled/packs.openapi.yaml && redocly bundle packs --output src/.bundled/packs.json && redocly bundle cases --output src/.bundled/cases.openapi.yaml && redocly bundle cases --output src/.bundled/cases.json",
+    "lint": "pnpm run lint:domains",
+    "bundle": "pnpm run bundle:domains"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^1.34.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

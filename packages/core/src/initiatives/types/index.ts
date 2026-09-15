@@ -1,0 +1,80 @@
+/**
+ * Initiatives Domain Types
+ *
+ * Auto-generated from OpenAPI spec
+ * Generator: types-generator v2.0.0
+ *
+ * This file re-exports types from generated OpenAPI types and adds
+ * convenient type aliases for handlers (response types, etc.)
+ *
+ * ⚠️ DO NOT EDIT MANUALLY - this file is auto-generated
+ */
+
+import type { components, operations } from "../openapi/initiatives.openapi.types";
+
+// ============================================================================
+// Re-export all generated types
+// ============================================================================
+// Note: components and operations are exported here but should be accessed via namespace
+// in main index.ts to avoid duplicate export errors (e.g., blockchain.types.components)
+
+export type { components, operations };
+
+
+// ============================================================================
+// Convenient Type Aliases for Schemas
+// ============================================================================
+
+export type ChallengerInitiative = components["schemas"]["ChallengerInitiative"];
+export type ChallengerInitiativeListData = components["schemas"]["ChallengerInitiativeListData"];
+export type InitiativeId = components["schemas"]["InitiativeId"];
+export type InitiativeStatus = components["schemas"]["InitiativeStatus"];
+export type SensingSignalIdRef = components["schemas"]["SensingSignalIdRef"];
+export type ShapeshifterRole = components["schemas"]["ShapeshifterRole"];
+export type SourcingChoice = components["schemas"]["SourcingChoice"];
+export type ChallengerInitiativeCreateRequest = components["schemas"]["ChallengerInitiativeCreateRequest"];
+export type KillInitiativeRequest = components["schemas"]["KillInitiativeRequest"];
+export type ScaleInitiativeRequest = components["schemas"]["ScaleInitiativeRequest"];
+export type SourcingUpdateRequest = components["schemas"]["SourcingUpdateRequest"];
+export type Initiative = operations["listChallengerInitiatives"]["responses"]["200"]["content"]["application/json"]["data"];
+
+
+// ============================================================================
+// Operation Input Types (Request Bodies)
+// ============================================================================
+
+// These types represent the input data for create/update operations
+
+export type CreateChallengerInitiativeRequestInput = NonNullable<operations["createChallengerInitiative"]["requestBody"]>["content"]["application/json"];
+export type SetInitiativeSourcingRequestInput = NonNullable<operations["setInitiativeSourcing"]["requestBody"]>["content"]["application/json"];
+export type KillInitiativeRequestInput = NonNullable<operations["killInitiative"]["requestBody"]>["content"]["application/json"];
+export type ScaleInitiativeRequestInput = NonNullable<operations["scaleInitiative"]["requestBody"]>["content"]["application/json"];
+
+
+// ============================================================================
+// Operation Parameter Types (Query/Path Parameters)
+// ============================================================================
+
+// These types represent parameters for operations without request bodies.
+// Aligned with get_input_schema_or_type_name for consistent naming across generators.
+
+export type GetChallengerInitiativeParams = operations["getChallengerInitiative"]["parameters"]["path"];
+export type SetInitiativeSourcingParams = operations["setInitiativeSourcing"]["parameters"]["path"];
+export type KillInitiativeParams = operations["killInitiative"]["parameters"]["path"];
+export type ScaleInitiativeParams = operations["scaleInitiative"]["parameters"]["path"];
+
+
+// ============================================================================
+// Operation Response Types
+// ============================================================================
+
+// These types are used by handlers for type-safe response envelopes
+
+export type ListChallengerInitiativesResponse = operations["listChallengerInitiatives"]["responses"]["200"]["content"]["application/json"];
+export type CreateChallengerInitiativeResponse = operations["createChallengerInitiative"]["responses"]["201"]["content"]["application/json"];
+export type GetChallengerInitiativeResponse = operations["getChallengerInitiative"]["responses"]["200"]["content"]["application/json"];
+export type SetInitiativeSourcingResponse = operations["setInitiativeSourcing"]["responses"]["200"]["content"]["application/json"];
+export type KillInitiativeResponse = operations["killInitiative"]["responses"]["200"]["content"]["application/json"];
+export type ScaleInitiativeResponse = operations["scaleInitiative"]["responses"]["200"]["content"]["application/json"];
+
+

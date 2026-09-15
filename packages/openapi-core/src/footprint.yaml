@@ -1,0 +1,161 @@
+openapi: 3.1.0
+info:
+  title: Footprint API
+  version: 0.1.0
+  description: |
+    Dual-speed core footprint map for FS CIO offices.
+
+    - Inventory core systems with run-careful vs change-fast tags.
+    - Set modernise / adapt / replace / retire dispositions (BR-2).
+  license:
+    name: Proprietary
+    url: https://morphora.local/license
+  x-domain: ftp
+servers:
+  - url: https://api.morphora.local
+    description: Local / starter API
+security:
+  - apiKey: []
+tags:
+  - name: Footprint
+    description: Dual-speed core footprint
+paths:
+  /v0/tenants/me/footprint/systems:
+    get:
+      operationId: listCoreSystems
+      tags: [Footprint]
+      summary: List core systems for the current tenant
+      responses:
+        '200':
+          description: Core systems
+          content:
+            application/json:
+              schema:
+                $ref: ./footprint.schemas.yaml#/components/schemas/CoreSystemListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createCoreSystem
+      tags: [Footprint]
+      summary: Register a core system
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./footprint.schemas.yaml#/components/schemas/CoreSystemCreateRequest
+      responses:
+        '201':
+          description: Core system created
+          content:
+            application/json:
+              schema:
+                $ref: ./footprint.schemas.yaml#/components/schemas/CoreSystemResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/footprint/systems/{systemId}:
+    get:
+      operationId: getCoreSystem
+      tags: [Footprint]
+      summary: Get a core system
+      parameters:
+        - name: systemId
+          in: path
+          required: true
+          schema:
+            $ref: ./footprint.schemas.yaml#/components/schemas/CoreSystemId
+      responses:
+        '200':
+          description: Core system
+          content:
+            application/json:
+              schema:
+                $ref: ./footprint.schemas.yaml#/components/schemas/CoreSystemResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/footprint/systems/{systemId}/disposition:
+    put:
+      operationId: setCoreSystemDisposition
+      tags: [Footprint]
+      summary: Set system disposition
+      parameters:
+        - name: systemId
+          in: path
+          required: true
+          schema:
+            $ref: ./footprint.schemas.yaml#/components/schemas/CoreSystemId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./footprint.schemas.yaml#/components/schemas/DispositionUpdateRequest
+      responses:
+        '200':
+          description: Disposition updated
+          content:
+            application/json:
+              schema:
+                $ref: ./footprint.schemas.yaml#/components/schemas/CoreSystemResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/footprint/systems/{systemId}/speed-tag:
+    put:
+      operationId: setCoreSystemSpeedTag
+      tags: [Footprint]
+      summary: Set dual-speed funding tag
+      parameters:
+        - name: systemId
+          in: path
+          required: true
+          schema:
+            $ref: ./footprint.schemas.yaml#/components/schemas/CoreSystemId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./footprint.schemas.yaml#/components/schemas/SpeedTagUpdateRequest
+      responses:
+        '200':
+          description: Speed tag updated
+          content:
+            application/json:
+              schema:
+                $ref: ./footprint.schemas.yaml#/components/schemas/CoreSystemResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

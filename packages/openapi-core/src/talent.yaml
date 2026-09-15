@@ -1,0 +1,123 @@
+openapi: 3.1.0
+info:
+  title: Talent API
+  version: 0.1.0
+  description: |
+    Critical-role coverage gaps attached to the dual-speed roadmap (BR-8).
+  license:
+    name: Proprietary
+    url: https://morphora.local/license
+  x-domain: tln
+servers:
+  - url: https://api.morphora.local
+    description: Local / starter API
+security:
+  - apiKey: []
+tags:
+  - name: Talent
+    description: Critical role coverage
+paths:
+  /v0/tenants/me/talent/gaps:
+    get:
+      operationId: listTalentGaps
+      tags: [Talent]
+      summary: List talent coverage gaps
+      responses:
+        '200':
+          description: Talent gaps
+          content:
+            application/json:
+              schema:
+                $ref: ./talent.schemas.yaml#/components/schemas/TalentGapListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createTalentGap
+      tags: [Talent]
+      summary: Create a talent coverage gap
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./talent.schemas.yaml#/components/schemas/TalentGapCreateRequest
+      responses:
+        '201':
+          description: Talent gap created
+          content:
+            application/json:
+              schema:
+                $ref: ./talent.schemas.yaml#/components/schemas/TalentGapResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/talent/gaps/{gapId}:
+    get:
+      operationId: getTalentGap
+      tags: [Talent]
+      summary: Get a talent coverage gap
+      parameters:
+        - name: gapId
+          in: path
+          required: true
+          schema:
+            $ref: ./talent.schemas.yaml#/components/schemas/TalentGapId
+      responses:
+        '200':
+          description: Talent gap
+          content:
+            application/json:
+              schema:
+                $ref: ./talent.schemas.yaml#/components/schemas/TalentGapResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    patch:
+      operationId: updateTalentGap
+      tags: [Talent]
+      summary: Update a talent coverage gap
+      parameters:
+        - name: gapId
+          in: path
+          required: true
+          schema:
+            $ref: ./talent.schemas.yaml#/components/schemas/TalentGapId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./talent.schemas.yaml#/components/schemas/TalentGapUpdateRequest
+      responses:
+        '200':
+          description: Talent gap updated
+          content:
+            application/json:
+              schema:
+                $ref: ./talent.schemas.yaml#/components/schemas/TalentGapResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

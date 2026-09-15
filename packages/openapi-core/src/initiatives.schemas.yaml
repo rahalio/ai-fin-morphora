@@ -1,0 +1,166 @@
+openapi: 3.1.0
+info:
+  title: Initiatives schemas
+  version: 0.1.0
+  description: |
+    Challenger / innovation portfolio — sourcing, kill, and scale rituals.
+paths: {}
+components:
+  schemas:
+    InitiativeId:
+      type: string
+      pattern: '^ini_[0-9a-hjkmnp-tv-z]{26}$'
+      description: Prefixed challenger initiative id (ini_ + lowercase Crockford ULID).
+
+    SensingSignalIdRef:
+      type: string
+      pattern: '^sns_[0-9a-hjkmnp-tv-z]{26}$'
+      description: Optional link to a sensing signal that spawned this initiative.
+
+    InitiativeStatus:
+      type: string
+      enum: [experiment, scale, killed]
+
+    ShapeshifterRole:
+      type: string
+      enum: [strategist, bridge, ecosystem, startup]
+
+    SourcingChoice:
+      type: string
+      enum: [build, buy, rent, partner, undecided]
+
+    ChallengerInitiative:
+      type: object
+      required:
+        - initiativeId
+        - name
+        - status
+        - role
+        - sourcing
+        - createdAt
+        - updatedAt
+      properties:
+        initiativeId:
+          $ref: '#/components/schemas/InitiativeId'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        status:
+          $ref: '#/components/schemas/InitiativeStatus'
+        role:
+          $ref: '#/components/schemas/ShapeshifterRole'
+        sourcing:
+          $ref: '#/components/schemas/SourcingChoice'
+        killMetric:
+          type: string
+          maxLength: 500
+          description: Explicit kill criterion for lab experiments.
+        daysInLab:
+          type: integer
+          minimum: 0
+          description: Days spent in experiment / lab status.
+        sensingSignalId:
+          $ref: '#/components/schemas/SensingSignalIdRef'
+        sponsorName:
+          type: string
+          maxLength: 120
+        sourcingRationale:
+          type: string
+          maxLength: 4000
+        killRationale:
+          type: string
+          maxLength: 4000
+        scaleRationale:
+          type: string
+          maxLength: 4000
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ChallengerInitiativeCreateRequest:
+      type: object
+      required:
+        - name
+        - role
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        role:
+          $ref: '#/components/schemas/ShapeshifterRole'
+        killMetric:
+          type: string
+          maxLength: 500
+        sensingSignalId:
+          $ref: '#/components/schemas/SensingSignalIdRef'
+        sponsorName:
+          type: string
+          maxLength: 120
+
+    SourcingUpdateRequest:
+      type: object
+      required:
+        - sourcing
+      properties:
+        sourcing:
+          type: string
+          enum: [build, buy, rent, partner]
+          description: Cannot set undecided via sourcing update.
+        rationale:
+          type: string
+          maxLength: 4000
+
+    KillInitiativeRequest:
+      type: object
+      required:
+        - rationale
+      properties:
+        rationale:
+          type: string
+          minLength: 1
+          maxLength: 4000
+
+    ScaleInitiativeRequest:
+      type: object
+      required:
+        - rationale
+      properties:
+        rationale:
+          type: string
+          minLength: 1
+          maxLength: 4000
+
+    ChallengerInitiativeListData:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChallengerInitiative'
+
+    ChallengerInitiativeResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/ChallengerInitiative'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    ChallengerInitiativeListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/ChallengerInitiativeListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

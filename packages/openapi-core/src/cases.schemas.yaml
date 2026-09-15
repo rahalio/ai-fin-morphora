@@ -1,0 +1,125 @@
+openapi: 3.1.0
+info:
+  title: Cases schemas
+  version: 0.1.0
+  description: |
+    Shadow-IT remediation cases discovered outside the dual-speed map (BR-10).
+paths: {}
+components:
+  schemas:
+    ShadowITCaseId:
+      type: string
+      pattern: '^cse_[0-9a-hjkmnp-tv-z]{26}$'
+      description: Prefixed shadow-IT case id (cse_ + lowercase Crockford ULID).
+
+    CoreSystemIdRef:
+      type: string
+      pattern: '^ftp_[0-9a-hjkmnp-tv-z]{26}$'
+
+    ShadowITCaseStatus:
+      type: string
+      enum: [open, remediating, closed]
+
+    RemediationAction:
+      type: string
+      enum: [mapToFootprint, retire, escalate]
+
+    ShadowITCase:
+      type: object
+      required:
+        - caseId
+        - systemName
+        - status
+        - discoveredVia
+        - createdAt
+        - updatedAt
+      properties:
+        caseId:
+          $ref: '#/components/schemas/ShadowITCaseId'
+        systemName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        status:
+          $ref: '#/components/schemas/ShadowITCaseStatus'
+        discoveredVia:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: How the shadow system was found (spend, incident, tip, scan).
+        remediationAction:
+          $ref: '#/components/schemas/RemediationAction'
+        footprintSystemId:
+          $ref: '#/components/schemas/CoreSystemIdRef'
+          description: Set when remediating via mapToFootprint.
+        remediationNotes:
+          type: string
+          maxLength: 4000
+        closedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ShadowITCaseCreateRequest:
+      type: object
+      required:
+        - systemName
+        - discoveredVia
+      properties:
+        systemName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        discoveredVia:
+          type: string
+          minLength: 1
+          maxLength: 200
+
+    RemediateShadowITCaseRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          $ref: '#/components/schemas/RemediationAction'
+        footprintSystemId:
+          $ref: '#/components/schemas/CoreSystemIdRef'
+          description: Required when action is mapToFootprint.
+        notes:
+          type: string
+          maxLength: 4000
+
+    ShadowITCaseListData:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShadowITCase'
+
+    ShadowITCaseResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/ShadowITCase'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    ShadowITCaseListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/ShadowITCaseListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

@@ -1,0 +1,124 @@
+openapi: 3.1.0
+info:
+  title: Partners schemas
+  version: 0.1.0
+  description: |
+    Ecosystem partner graph — criticality, concentration, and SPOF flags.
+paths: {}
+components:
+  schemas:
+    PartnerId:
+      type: string
+      pattern: '^prt_[0-9a-hjkmnp-tv-z]{26}$'
+      description: Prefixed partner id (prt_ + lowercase Crockford ULID).
+
+    PartnerCriticality:
+      type: string
+      enum: [low, medium, high, systemic]
+
+    Partner:
+      type: object
+      required:
+        - partnerId
+        - name
+        - partnerType
+        - criticality
+        - spof
+        - createdAt
+        - updatedAt
+      properties:
+        partnerId:
+          $ref: '#/components/schemas/PartnerId'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        partnerType:
+          type: string
+          minLength: 1
+          maxLength: 80
+          description: e.g. cloud, vendor, startup, alliance, openSource.
+        criticality:
+          $ref: '#/components/schemas/PartnerCriticality'
+        concentrationScore:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Portfolio concentration risk score (0–1).
+        spof:
+          type: boolean
+          description: Single point of failure at portfolio level.
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PartnerCreateRequest:
+      type: object
+      required:
+        - name
+        - partnerType
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        partnerType:
+          type: string
+          minLength: 1
+          maxLength: 80
+        criticality:
+          $ref: '#/components/schemas/PartnerCriticality'
+        concentrationScore:
+          type: number
+          minimum: 0
+          maximum: 1
+        spof:
+          type: boolean
+
+    CriticalityUpdateRequest:
+      type: object
+      required:
+        - criticality
+        - concentrationScore
+      properties:
+        criticality:
+          $ref: '#/components/schemas/PartnerCriticality'
+        concentrationScore:
+          type: number
+          minimum: 0
+          maximum: 1
+        spof:
+          type: boolean
+
+    PartnerListData:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Partner'
+
+    PartnerResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/Partner'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    PartnerListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/PartnerListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

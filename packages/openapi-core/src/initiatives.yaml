@@ -1,0 +1,198 @@
+openapi: 3.1.0
+info:
+  title: Initiatives API
+  version: 0.1.0
+  description: |
+    Challenger innovation portfolio with build/buy/rent/partner sourcing
+    and kill-or-scale rituals (BR-1, BR-4, BR-6).
+  license:
+    name: Proprietary
+    url: https://morphora.local/license
+  x-domain: ini
+servers:
+  - url: https://api.morphora.local
+    description: Local / starter API
+security:
+  - apiKey: []
+tags:
+  - name: Initiatives
+    description: Challenger innovation portfolio
+paths:
+  /v0/tenants/me/initiatives:
+    get:
+      operationId: listChallengerInitiatives
+      tags: [Initiatives]
+      summary: List challenger initiatives
+      responses:
+        '200':
+          description: Initiatives
+          content:
+            application/json:
+              schema:
+                $ref: ./initiatives.schemas.yaml#/components/schemas/ChallengerInitiativeListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createChallengerInitiative
+      tags: [Initiatives]
+      summary: Create a challenger initiative
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./initiatives.schemas.yaml#/components/schemas/ChallengerInitiativeCreateRequest
+      responses:
+        '201':
+          description: Initiative created
+          content:
+            application/json:
+              schema:
+                $ref: ./initiatives.schemas.yaml#/components/schemas/ChallengerInitiativeResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/initiatives/{initiativeId}:
+    get:
+      operationId: getChallengerInitiative
+      tags: [Initiatives]
+      summary: Get a challenger initiative
+      parameters:
+        - name: initiativeId
+          in: path
+          required: true
+          schema:
+            $ref: ./initiatives.schemas.yaml#/components/schemas/InitiativeId
+      responses:
+        '200':
+          description: Initiative
+          content:
+            application/json:
+              schema:
+                $ref: ./initiatives.schemas.yaml#/components/schemas/ChallengerInitiativeResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/initiatives/{initiativeId}/sourcing:
+    put:
+      operationId: setInitiativeSourcing
+      tags: [Initiatives]
+      summary: Set build / buy / rent / partner sourcing
+      parameters:
+        - name: initiativeId
+          in: path
+          required: true
+          schema:
+            $ref: ./initiatives.schemas.yaml#/components/schemas/InitiativeId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./initiatives.schemas.yaml#/components/schemas/SourcingUpdateRequest
+      responses:
+        '200':
+          description: Sourcing updated
+          content:
+            application/json:
+              schema:
+                $ref: ./initiatives.schemas.yaml#/components/schemas/ChallengerInitiativeResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/initiatives/{initiativeId}/kill:
+    put:
+      operationId: killInitiative
+      tags: [Initiatives]
+      summary: Kill a challenger initiative
+      description: Sets status to killed with immutable rationale for the ritual.
+      parameters:
+        - name: initiativeId
+          in: path
+          required: true
+          schema:
+            $ref: ./initiatives.schemas.yaml#/components/schemas/InitiativeId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./initiatives.schemas.yaml#/components/schemas/KillInitiativeRequest
+      responses:
+        '200':
+          description: Initiative killed
+          content:
+            application/json:
+              schema:
+                $ref: ./initiatives.schemas.yaml#/components/schemas/ChallengerInitiativeResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/initiatives/{initiativeId}/scale:
+    put:
+      operationId: scaleInitiative
+      tags: [Initiatives]
+      summary: Scale a challenger initiative
+      description: Sets status to scale with rationale.
+      parameters:
+        - name: initiativeId
+          in: path
+          required: true
+          schema:
+            $ref: ./initiatives.schemas.yaml#/components/schemas/InitiativeId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./initiatives.schemas.yaml#/components/schemas/ScaleInitiativeRequest
+      responses:
+        '200':
+          description: Initiative scaled
+          content:
+            application/json:
+              schema:
+                $ref: ./initiatives.schemas.yaml#/components/schemas/ChallengerInitiativeResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

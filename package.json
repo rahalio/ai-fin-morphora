@@ -1,0 +1,30 @@
+{
+  "name": "morphora",
+  "version": "0.1.0",
+  "description": "Morphora — dual-speed CIO operating system (OpenAPI-first DDD)",
+  "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:openapi": "pnpm --filter @morphora/openapi-core lint:domains",
+    "bundle:openapi": "pnpm --filter @morphora/openapi-core bundle:domains",
+    "build": "pnpm --filter @morphora/core build && pnpm --filter @morphora/services build && pnpm --filter @morphora/adapters build && pnpm --filter @morphora/api-server build",
+    "dev:api": "pnpm --filter @morphora/api-server dev",
+    "dev:web": "pnpm --filter @morphora/webapp dev",
+    "codegen:core": "node scripts/sync-codegen-paths.mjs && PYTHONPATH=.codegen/codegen/src python3 -m zero_codegen.cli.main generate --all --layers core --config .codegen/.zero-codegen-merged.json --skip-build",
+    "codegen:identity": "node scripts/sync-codegen-paths.mjs && PYTHONPATH=.codegen/codegen/src python3 -m zero_codegen.cli.main generate --domain identity --config .codegen/.zero-codegen-merged.json --skip-build",
+    "codegen:paths": "node scripts/sync-codegen-paths.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^20.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.55.0"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9.0.0"
+  }
+}

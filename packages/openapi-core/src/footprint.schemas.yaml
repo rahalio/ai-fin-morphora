@@ -1,0 +1,139 @@
+openapi: 3.1.0
+info:
+  title: Footprint schemas
+  version: 0.1.0
+  description: |
+    Dual-speed core IT footprint — systems with dispositions and funding tags.
+paths: {}
+components:
+  schemas:
+    CoreSystemId:
+      type: string
+      pattern: '^ftp_[0-9a-hjkmnp-tv-z]{26}$'
+      description: Prefixed core system id (ftp_ + lowercase Crockford ULID).
+
+    SpeedTag:
+      type: string
+      enum: [runCareful, changeFast]
+      description: Dual-speed funding tag — careful legacy stewardship vs change-fast.
+
+    Disposition:
+      type: string
+      enum: [modernise, adapt, replace, retire, undecided]
+
+    CoreSystem:
+      type: object
+      required:
+        - systemId
+        - name
+        - speedTag
+        - disposition
+        - createdAt
+        - updatedAt
+      properties:
+        systemId:
+          $ref: '#/components/schemas/CoreSystemId'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        speedTag:
+          $ref: '#/components/schemas/SpeedTag'
+        disposition:
+          $ref: '#/components/schemas/Disposition'
+        dispositionRationale:
+          type: string
+          maxLength: 4000
+        runSpendShare:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Share of spend attributed to run/maintain (0–1).
+        sloCompliance:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Optional SLO compliance ratio.
+        couplingWarning:
+          type: boolean
+          description: True when tight coupling blocks change-fast paths.
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CoreSystemCreateRequest:
+      type: object
+      required:
+        - name
+        - speedTag
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        speedTag:
+          $ref: '#/components/schemas/SpeedTag'
+        runSpendShare:
+          type: number
+          minimum: 0
+          maximum: 1
+        sloCompliance:
+          type: number
+          minimum: 0
+          maximum: 1
+        couplingWarning:
+          type: boolean
+
+    DispositionUpdateRequest:
+      type: object
+      required:
+        - disposition
+      properties:
+        disposition:
+          type: string
+          enum: [modernise, adapt, replace, retire]
+          description: Cannot set undecided via disposition update.
+        rationale:
+          type: string
+          maxLength: 4000
+
+    SpeedTagUpdateRequest:
+      type: object
+      required:
+        - speedTag
+      properties:
+        speedTag:
+          $ref: '#/components/schemas/SpeedTag'
+
+    CoreSystemListData:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoreSystem'
+
+    CoreSystemResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/CoreSystem'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    CoreSystemListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/CoreSystemListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta

@@ -1,0 +1,129 @@
+openapi: 3.1.0
+info:
+  title: Packs API
+  version: 0.1.0
+  description: |
+    Executive and board pack generation with publish ritual (BR-11).
+  license:
+    name: Proprietary
+    url: https://morphora.local/license
+  x-domain: pck
+servers:
+  - url: https://api.morphora.local
+    description: Local / starter API
+security:
+  - apiKey: []
+tags:
+  - name: Packs
+    description: Executive and board packs
+paths:
+  /v0/tenants/me/packs:
+    get:
+      operationId: listExecPacks
+      tags: [Packs]
+      summary: List executive / board packs
+      responses:
+        '200':
+          description: Packs
+          content:
+            application/json:
+              schema:
+                $ref: ./packs.schemas.yaml#/components/schemas/ExecPackListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createExecPack
+      tags: [Packs]
+      summary: Create a draft executive pack
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./packs.schemas.yaml#/components/schemas/ExecPackCreateRequest
+      responses:
+        '201':
+          description: Pack created
+          content:
+            application/json:
+              schema:
+                $ref: ./packs.schemas.yaml#/components/schemas/ExecPackResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/packs/{packId}:
+    get:
+      operationId: getExecPack
+      tags: [Packs]
+      summary: Get an executive pack
+      parameters:
+        - name: packId
+          in: path
+          required: true
+          schema:
+            $ref: ./packs.schemas.yaml#/components/schemas/ExecPackId
+      responses:
+        '200':
+          description: Pack
+          content:
+            application/json:
+              schema:
+                $ref: ./packs.schemas.yaml#/components/schemas/ExecPackResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/packs/{packId}/publish:
+    post:
+      operationId: publishExecPack
+      tags: [Packs]
+      summary: Publish an executive pack
+      description: Transitions draft → published; conflicts if already published.
+      parameters:
+        - name: packId
+          in: path
+          required: true
+          schema:
+            $ref: ./packs.schemas.yaml#/components/schemas/ExecPackId
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: ./packs.schemas.yaml#/components/schemas/PublishExecPackRequest
+      responses:
+        '200':
+          description: Pack published
+          content:
+            application/json:
+              schema:
+                $ref: ./packs.schemas.yaml#/components/schemas/ExecPackResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

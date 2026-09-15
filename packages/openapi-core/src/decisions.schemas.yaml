@@ -1,0 +1,194 @@
+openapi: 3.1.0
+info:
+  title: Decisions schemas
+  version: 0.1.0
+  description: |
+    Immutable CIO decision ledger and cadence-home aggregate (stub).
+paths: {}
+components:
+  schemas:
+    DecisionId:
+      type: string
+      pattern: '^dec_[0-9a-hjkmnp-tv-z]{26}$'
+      description: Prefixed decision id (dec_ + lowercase Crockford ULID).
+
+    ShapeshifterRole:
+      type: string
+      enum: [strategist, bridge, ecosystem, startup]
+
+    RelatedEntityType:
+      type: string
+      enum:
+        - sensingSignal
+        - coreSystem
+        - partner
+        - initiative
+        - talentGap
+        - execPack
+        - shadowITCase
+        - other
+
+    DecisionRecord:
+      type: object
+      description: Immutable ledger row — create-only; no update/delete paths.
+      required:
+        - decisionId
+        - decisionType
+        - outcome
+        - rationale
+        - decidedAt
+        - createdAt
+      properties:
+        decisionId:
+          $ref: '#/components/schemas/DecisionId'
+        decisionType:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: e.g. hypeFilter, disposition, sourcing, killScale, packPublish.
+        outcome:
+          type: string
+          minLength: 1
+          maxLength: 200
+        rationale:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        relatedEntityId:
+          type: string
+          maxLength: 64
+        relatedEntityType:
+          $ref: '#/components/schemas/RelatedEntityType'
+        shapeshifterRole:
+          $ref: '#/components/schemas/ShapeshifterRole'
+        decidedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    DecisionRecordCreateRequest:
+      type: object
+      required:
+        - decisionType
+        - outcome
+        - rationale
+      properties:
+        decisionType:
+          type: string
+          minLength: 1
+          maxLength: 120
+        outcome:
+          type: string
+          minLength: 1
+          maxLength: 200
+        rationale:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        relatedEntityId:
+          type: string
+          maxLength: 64
+        relatedEntityType:
+          $ref: '#/components/schemas/RelatedEntityType'
+        shapeshifterRole:
+          $ref: '#/components/schemas/ShapeshifterRole'
+        decidedAt:
+          type: string
+          format: date-time
+          description: Defaults to server time when omitted.
+
+    DecisionRecordListData:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DecisionRecord'
+
+    DecisionRecordResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/DecisionRecord'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    DecisionRecordListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/DecisionRecordListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    RoleRitualStatus:
+      type: string
+      enum: [onTrack, due, overdue, skipped]
+      description: Per-shapeshifter-role ritual status for cadence home.
+
+    RoleCadenceItem:
+      type: object
+      required:
+        - role
+        - ritualStatus
+      properties:
+        role:
+          $ref: '#/components/schemas/ShapeshifterRole'
+        ritualStatus:
+          $ref: '#/components/schemas/RoleRitualStatus'
+        nextDueAt:
+          type: string
+          format: date-time
+        lastCompletedAt:
+          type: string
+          format: date-time
+
+    CadenceSummary:
+      type: object
+      description: |
+        Action-only cadence home aggregate (x-maturity stub).
+        Counts due decisions and role ritual status for CIO operating rhythm.
+      required:
+        - dueDecisionCount
+        - overdueDecisionCount
+        - roleRituals
+      properties:
+        dueDecisionCount:
+          type: integer
+          minimum: 0
+        overdueDecisionCount:
+          type: integer
+          minimum: 0
+        openSensingCount:
+          type: integer
+          minimum: 0
+        openShadowCaseCount:
+          type: integer
+          minimum: 0
+        roleRituals:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleCadenceItem'
+        generatedAt:
+          type: string
+          format: date-time
+      x-maturity: stub
+
+    CadenceSummaryResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/CadenceSummary'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+      x-maturity: stub

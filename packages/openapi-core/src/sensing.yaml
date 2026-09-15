@@ -1,0 +1,169 @@
+openapi: 3.1.0
+info:
+  title: Sensing API
+  version: 0.1.0
+  description: |
+    Emerging-tech sensing engine backlog and hype-filter workflow.
+
+    - Capture alliance / technology signals before executive sponsorship.
+    - Upsert hype assessments (score + recommendation).
+    - Stamp immutable adopt / watch / reject decisions with rationale (BR-9).
+  license:
+    name: Proprietary
+    url: https://morphora.local/license
+  x-domain: sns
+servers:
+  - url: https://api.morphora.local
+    description: Local / starter API
+security:
+  - apiKey: []
+tags:
+  - name: Sensing
+    description: Emerging tech sensing and hype filter
+paths:
+  /v0/tenants/me/sensing/signals:
+    get:
+      operationId: listSensingSignals
+      tags: [Sensing]
+      summary: List sensing signals for the current tenant
+      responses:
+        '200':
+          description: Sensing signals
+          content:
+            application/json:
+              schema:
+                $ref: ./sensing.schemas.yaml#/components/schemas/SensingSignalListResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createSensingSignal
+      tags: [Sensing]
+      summary: Create a sensing signal
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./sensing.schemas.yaml#/components/schemas/SensingSignalCreateRequest
+      responses:
+        '201':
+          description: Sensing signal created
+          content:
+            application/json:
+              schema:
+                $ref: ./sensing.schemas.yaml#/components/schemas/SensingSignalResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/sensing/signals/{signalId}:
+    get:
+      operationId: getSensingSignal
+      tags: [Sensing]
+      summary: Get a sensing signal
+      parameters:
+        - name: signalId
+          in: path
+          required: true
+          schema:
+            $ref: ./sensing.schemas.yaml#/components/schemas/SensingSignalId
+      responses:
+        '200':
+          description: Sensing signal
+          content:
+            application/json:
+              schema:
+                $ref: ./sensing.schemas.yaml#/components/schemas/SensingSignalResponse
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/sensing/signals/{signalId}/hype-assessment:
+    put:
+      operationId: upsertHypeAssessment
+      tags: [Sensing]
+      summary: Upsert hype assessment for a signal
+      description: Scores hype vs reality and optional recommended outcome before stamp.
+      parameters:
+        - name: signalId
+          in: path
+          required: true
+          schema:
+            $ref: ./sensing.schemas.yaml#/components/schemas/SensingSignalId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./sensing.schemas.yaml#/components/schemas/HypeAssessmentUpsertRequest
+      responses:
+        '200':
+          description: Hype assessment upserted
+          content:
+            application/json:
+              schema:
+                $ref: ./sensing.schemas.yaml#/components/schemas/HypeAssessmentResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v0/tenants/me/sensing/signals/{signalId}/decision:
+    post:
+      operationId: stampSensingDecision
+      tags: [Sensing]
+      summary: Stamp immutable hype-filter decision
+      description: |
+        Records adopt / watch / reject with rationale. Immutable once accepted.
+        Conflicts if the signal was already decided.
+      parameters:
+        - name: signalId
+          in: path
+          required: true
+          schema:
+            $ref: ./sensing.schemas.yaml#/components/schemas/SensingSignalId
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./sensing.schemas.yaml#/components/schemas/StampSignalDecisionRequest
+      responses:
+        '200':
+          description: Decision stamped; signal now decided
+          content:
+            application/json:
+              schema:
+                $ref: ./sensing.schemas.yaml#/components/schemas/SensingSignalResponse
+        '400':
+          $ref: ./common/responses.yaml#/components/responses/BadRequest
+        '401':
+          $ref: ./common/responses.yaml#/components/responses/Unauthorized
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        '409':
+          $ref: ./common/responses.yaml#/components/responses/Conflict
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

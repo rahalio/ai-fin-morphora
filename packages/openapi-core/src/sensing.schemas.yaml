@@ -1,0 +1,182 @@
+openapi: 3.1.0
+info:
+  title: Sensing schemas
+  version: 0.1.0
+  description: |
+    Emerging-tech sensing backlog and hype-filter assessments.
+    Stamp decisions (adopt / watch / reject) are immutable once recorded.
+paths: {}
+components:
+  schemas:
+    SensingSignalId:
+      type: string
+      pattern: '^sns_[0-9a-hjkmnp-tv-z]{26}$'
+      description: Prefixed sensing signal id (sns_ + lowercase Crockford ULID).
+
+    SensingSignalStatus:
+      type: string
+      enum: [new, assessing, decided]
+
+    HypeFilterOutcome:
+      type: string
+      enum: [adopt, watch, reject]
+      description: Immutable hype-filter decision outcome.
+
+    SensingSignal:
+      type: object
+      required:
+        - signalId
+        - title
+        - technologyArea
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        signalId:
+          $ref: '#/components/schemas/SensingSignalId'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        technologyArea:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: e.g. cloud, AI, blockchain, quantum, alliances.
+        sourceUri:
+          type: string
+          format: uri
+        status:
+          $ref: '#/components/schemas/SensingSignalStatus'
+        decisionOutcome:
+          $ref: '#/components/schemas/HypeFilterOutcome'
+          description: Set when a stamp decision is recorded; immutable thereafter.
+        decisionRationale:
+          type: string
+          maxLength: 4000
+        decidedAt:
+          type: string
+          format: date-time
+        hypeAssessment:
+          $ref: '#/components/schemas/HypeAssessment'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SensingSignalCreateRequest:
+      type: object
+      required:
+        - title
+        - technologyArea
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        technologyArea:
+          type: string
+          minLength: 1
+          maxLength: 120
+        sourceUri:
+          type: string
+          format: uri
+
+    HypeAssessment:
+      type: object
+      required:
+        - signalId
+        - assessedAt
+      properties:
+        signalId:
+          $ref: '#/components/schemas/SensingSignalId'
+        hypeScore:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: 0 = grounded reality, 1 = pure hype.
+        recommendedOutcome:
+          $ref: '#/components/schemas/HypeFilterOutcome'
+          description: Sensing recommendation before executive stamp.
+        assessmentNotes:
+          type: string
+          maxLength: 4000
+        assessedAt:
+          type: string
+          format: date-time
+        assessedBy:
+          type: string
+          maxLength: 120
+
+    HypeAssessmentUpsertRequest:
+      type: object
+      required:
+        - hypeScore
+      properties:
+        hypeScore:
+          type: number
+          minimum: 0
+          maximum: 1
+        recommendedOutcome:
+          $ref: '#/components/schemas/HypeFilterOutcome'
+        assessmentNotes:
+          type: string
+          maxLength: 4000
+
+    StampSignalDecisionRequest:
+      type: object
+      description: |
+        Immutable hype-filter stamp. Once accepted, outcome and rationale
+        cannot be changed (BR-9). Creates a decision ledger trail.
+      required:
+        - outcome
+        - rationale
+      properties:
+        outcome:
+          $ref: '#/components/schemas/HypeFilterOutcome'
+        rationale:
+          type: string
+          minLength: 1
+          maxLength: 4000
+
+    SensingSignalListData:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SensingSignal'
+
+    SensingSignalResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/SensingSignal'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    SensingSignalListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/SensingSignalListData'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
+
+    HypeAssessmentResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/HypeAssessment'
+        meta:
+          $ref: ./common/envelopes.yaml#/components/schemas/ResponseMeta
